@@ -1,0 +1,174 @@
+doctype html
+head
+  meta(charset='utf-8')
+  title A simple, clean, and responsive HTML invoice template
+  style.
+    .header-box {
+    background-image: linear-gradient(90deg, #b87df9, #6a4ee1);
+    max-width: 800px;
+    margin: auto;
+    color: white;
+    border: 1px solid #eee;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+    font-size: 16px;
+    line-height: 24px;
+    padding: 2%;
+    font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    }
+    .invoice-box {
+    max-width: 800px;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #eee;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+    font-size: 16px;
+    line-height: 24px;
+    font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    color: #555;
+    }
+    table {
+    width: 100%;
+    line-height: inherit;
+    text-align: left;
+    }
+    table td {
+    padding: 5px;
+    vertical-align: top;
+    }
+    tr td:nth-child(2) {
+    text-align: right;
+    }
+    table tr.top table td {
+    padding-bottom: 20px;
+    }
+    table tr.top table td.title {
+    font-size: 45px;
+    line-height: 45px;
+    color: #333;
+    }
+    .invoice-box table tr.information table td {
+    padding-bottom: 40px;
+    }
+    .invoice-box table tr.heading td {
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    }
+    .invoice-box table tr.details td {
+    padding-bottom: 20px;
+    }
+    .invoice-box table tr.item td{
+    border-bottom: 1px solid #eee;
+    }
+    .invoice-box table tr.item.last td {
+    border-bottom: none;
+    }
+    .invoice-box table tr.total td:nth-child(2) {
+    border-top: 2px solid #eee;
+    font-weight: bold;
+    }
+    .wave-bottom {
+    position: absolute;
+    left: 22.5%;
+    top: 217px;
+    right: 0%;
+    bottom: -1px;
+    z-index: 1;
+    width: 55%;
+    height: 4vw;
+    }
+    @media only screen and (max-width: 600px) {
+    .invoice-box table tr.top table td {
+    width: 100%;
+    display: block;
+    text-align: center;
+    }
+    .invoice-box table tr.information table td {
+    width: 100%;
+    display: block;
+    text-align: center;
+    }
+    }
+    /** RTL **/
+    .rtl {
+    direction: rtl;
+    font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    }
+    .rtl table {
+    text-align: right;
+    }
+    .rtl table tr td:nth-child(2) {
+    text-align: left;
+    }
+.header-box
+  table(cellpadding='0', cellspacing='0')
+    tr.top
+      td(colspan='2')
+        table.top-class
+          tr
+            td.title
+              img(src='/images/stark-logo.png' style='width:100%; max-width:300px;')
+            td
+              | Transaction ID: #{transaction.id}
+              br
+              |                                 Created: #{moment(transaction.createdAt).format('YYYY-MM-DD')}
+              br
+              |                                 Status: #{transaction.status}
+    tr.information
+      td(colspan='2')
+        table
+          tr
+            td
+              | #{transaction.merchantAccountId}
+              br
+              |                                 
+              br
+              |                                 
+            td
+              |                                  #{customer_data.customer_name}
+              br
+              |                                 #{customer_data.customer_email}
+              br
+              |                                 #{customer_data.customer_phone}
+  img.wave-bottom(src='https://uploads-ssl.webflow.com/5e89c00abebe7dcfb5042125/5e89c00a0b4db15efaa88834_wave-bottom-haze.svg')
+.invoice-box
+  table(cellpadding='0', cellspacing='0')
+    tr.heading
+      td
+        | Payment Method
+      td
+        | Credit Card
+    tr.details
+      td
+        | Masked Number
+      td
+        | #{transaction.creditCard.maskedNumber}
+    tr.details
+      td
+        | Card Type
+      td
+        | #{transaction.creditCard.cardType}
+    tr.heading
+      td
+        | Transaction Details
+      td
+        | 
+    tr.item
+      td
+        | Transaction ID
+      td
+        |  #{transaction.id}
+    tr.item
+      td
+        | Amount
+      td
+        | #{transaction.amount}
+    tr.item.last
+      td
+        | Merchant account ID
+      td
+        | #{transaction.merchantAccountId}
+    tr.total
+      td
+      td
+        | Total: #{transaction.amount}

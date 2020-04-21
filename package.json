@@ -1,0 +1,60 @@
+{
+  "name": "braintree_express_example",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "run-p watch:*",
+    "start": "node ./bin/www",
+    "test": "jest --config=jest.config.json",
+    "test:unit": "jest --testPathIgnorePatterns **/__tests__/**.integration.js",
+    "watch:server": "DEBUG=\"braintree_example:*\" nodemon bin/www"
+  },
+  "devDependencies": {
+    "eslint": "^6.6.0",
+    "eslint-config-braintree": "^4.0.0",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "jest": "^24.9.0",
+    "jest-runner-eslint": "^0.7.5",
+    "nodemon": "^1.19.2",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.18.2",
+    "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "braintree": "^2.21.0",
+    "connect-flash": "~0.1.1",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "http": "0.0.1-security",
+    "http-errors": "^1.7.3",
+    "https": "^1.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "less-middleware": "^3.1.0",
+    "moment": "^2.24.0",
+    "mongodb": "^3.5.6",
+    "mongoose": "^5.9.9",
+    "morgan": "^1.9.1",
+    "morgan-debug": "^2.0.0",
+    "open": "^7.0.3",
+    "pug": "^2.0.4",
+    "querystring": "^0.2.0",
+    "requirejs": "^2.3.6",
+    "secret-key": "^1.4.3",
+    "serve-favicon": "^2.5.0"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "browserslist": [
+    "last 2 version",
+    "> 2%",
+    "ie 11"
+  ]
+}
