@@ -1,5 +1,5 @@
 //Require mongoose package
-const mongoose = require('mongoose');
+const mongoose = require('mongoose').set('debug', true);;
 
 //Define UserList with title, description and category
 const UserListSchema = mongoose.Schema({
@@ -18,7 +18,7 @@ const UserListSchema = mongoose.Schema({
     }
 });
 
-const UserList = module.exports = mongoose.model('UserList', UserListSchema );
+const UserList = module.exports = mongoose.model('UserList', UserListSchema, 'UserList' );
 
 //newList.save is used to insert the document into MongoDB
 module.exports.addList = (newList, callback) => {
@@ -33,6 +33,10 @@ module.exports.addList = (newList, callback) => {
 //Here we need to pass an id parameter to InvoiceList.find
 module.exports.findUserByEmail =  (req, result) => {
     console.log('emaillllllllllllllll:', req);
-    UserList.find({ 'user_email': req.email , 'user_password': req.password}, 'user_type', result)
-    
+    UserList.find(req, 'user_type', result)
+}
+
+module.exports.auth_login =  (req, result) => {
+    console.log('login credentials:', req);
+    UserList.find({user_email: req.user_email, user_password: req.user_password}, result)
 }

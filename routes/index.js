@@ -3,7 +3,7 @@ const { Transaction } = require('braintree');
 const logger = require('debug');
 const gateway = require('../lib/gateway');
 const invoicelist = require('../models/List');
-const userlist = require('../models/User');
+const UserList = require('../models/User');
 const router = Router(); // eslint-disable-line new-cap
 const debug = logger('braintree_example:router');
 const crypto = require("crypto");
@@ -15,6 +15,8 @@ var subscription_global;
 var transaction;
 var customer_data;
 var invoice_id;
+var opn = require('opn');
+var frontend_url = "http://localhost:4200/view-receipt?transaction_id="
 
 const secretKey = require('secret-key');
 var jwt = require('jsonwebtoken');
@@ -56,13 +58,13 @@ function createResultObject({ status }) {
       header: 'Sweet Success!',
       icon: 'success',
       message:
-        'Your test transaction has been successfully processed and you have been successfully subscribed to a plan. See the Braintree API response and try again.'
+        'Your test transaction has been successfully processed.'
     };
   } else {
     result = {
       header: 'Transaction Failed',
       icon: 'fail',
-      message: `Your test transaction has a status of ${status}. See the Braintree API response and try again.`
+      message: `Your test transaction has a status of ${status}. Please and try again.`
     };
   }
 
@@ -71,19 +73,20 @@ function createResultObject({ status }) {
 
 
 router.get('/', (req, res) => {
-  res.redirect('/checkouts/new');
+  // res.redirect('/checkouts/new');
   // res.redirect('/checkouts/new_checkout');
 });
 
 router.get('/checkouts/new_checkout/:id', (req, res) => {
-  // console.log('request...............', req.params, invoice_id, customer_data);
+  console.log('transaction_id: ', req.params.id);
+  
   invoicelist.findListByTransactionId(req.params.id, (err, lists)=> {
     if(err) {
       console.log('error finding transaction', err);
-      
-        // res.json({success:false, message: `Failed to load all lists. Error: ${err}`});
+      opn(frontend_url+req.params.id);
+      return;
     }
-    if (lists.length == 0) {
+    else if (lists.length == 0) {
       console.log('error finding transaction, blank list ', lists);
       invoicelist.findListById(invoice_id, (err, lists)=> {
         if(err) {
@@ -91,7 +94,7 @@ router.get('/checkouts/new_checkout/:id', (req, res) => {
         }
         else {
           if ((lists[0] && lists[0].status == 'Pending') || (customer_data && customer_data.status === 'Pending')) {
-            console.log('updatinggggggggggggggggg');
+            console.log('updatinggggggggggggggggg', req.params.id);
             
             let newData = {
               invoice_id: invoice_id,
@@ -127,8 +130,14 @@ router.get('/checkouts/new_checkout/:id', (req, res) => {
             // result = createResultObject(transaction);
             result = createResultObject(transaction);
               transaction = transaction;
+            console.log('front urlllllllllllllllllll ben: ', frontend_url);
+              
+              // opens the url in the default browser 
+              opn(frontend_url+req.params.id);
+              res.render('checkouts/show', { transaction, result, subscription });
+              // res.send({status: true, message: 'Transaction data fetched successfully', data: transaction})
               // console.log('result.............................................', transaction);
-              res.render('checkouts/new_checkout', { transaction, subscription , customer_data })
+              // res.render('checkouts/new_checkout', { transaction, subscription , customer_data })
           });
         }
       });
@@ -173,34 +182,34 @@ router.get('/checkouts/new_checkout/:id', (req, res) => {
         // result = createResultObject(transaction);
         result = createResultObject(transaction);
           transaction = transaction;
+          // opens the url in the default browser 
+          console.log('front urlllllllllllllllllll: ', frontend_url);
+          // opn(frontend_url);
+          res.send({status: true, message: 'Transaction data fetched successfully', data: transaction})
           // console.log('result.............................................', transaction);
-          res.render('checkouts/new_checkout', { transaction, subscription, customer_data })
-      });
+          // res.render('checkouts/new_checkout', { transaction, subscription, customer_data })
+      }), (error) => {
+        console.log('errpr while finding transactionsss:', error);
+        
+      };
         // res.write(JSON.stringify({success: true, lists:lists},null,2));
         // res.end();
     }
   });
-  let ff=this;
-  // console.log(this.customer_data, customer_data, ff.customer_data);
-  // let subscription = this.subscription;
-  // gateway.transaction.find(req.params.id).then(transaction => {
-  //   // result = createResultObject(transaction);
-  //   result = createResultObject(transaction);
-  //     transaction = transaction;
-  //     // console.log('result.............................................', ff.subscription, subscription_global);
-  //     res.render('checkouts/new_checkout', { transaction, subscription  })
-  // });
-  
 })
 
 router.get('/set_invoice_id/:id', (req, res) => {
+  console.log('inovice id received: ', req.params);
+  
   invoice_id = req.params.id;
-  res.send(200);
+  res.sendStatus(200);
 })
 
 router.get('/checkouts/new', (req, res) => {
   console.log('params:', invoice_id);
   let data;
+  let name;
+  let service_name;
   invoicelist.findListById(invoice_id, (err, lists)=> {
     if(err) {
         res.json({success:false, message: `Failed to load all lists. Error: ${err}`});
@@ -208,7 +217,9 @@ router.get('/checkouts/new', (req, res) => {
     else {
         console.log(lists);
         data = lists[0];
-        customer_data = data;
+        name = data.customer_name;
+        // if (customer_data) {
+          customer_data = data;
         gateway.customer.create({
           firstName: data.customer_name,
           // lastName: "Smith",
@@ -225,8 +236,10 @@ router.get('/checkouts/new', (req, res) => {
         });
         amount = data.amount;
         invoice_id = data.invoice_id;
-        gateway.clientToken.generate({
-          customerId: customerId
+        service_name = data.service;
+        gateway.clientToken.generate(
+          {
+          // customerId: customerId
         }, function (err, response) {
         // console.log('token: ', response)
           clientToken = response.clientToken
@@ -234,11 +247,14 @@ router.get('/checkouts/new', (req, res) => {
             clientToken,
             amount,
             invoice_id,
+            name,
+            service_name,
             messages: req.flash('error')
           });
           // res.sendFile('checkouts/new.pug')
         });
 
+        // }
     }
   });
 console.log('data see now: ', data);
@@ -311,10 +327,7 @@ router.post('/checkouts', (req, res) => {
     .then(result => {
       const { success, transaction } = result;
       ff.invoice_id = invoice_id;
-      // console.log('customer data: ', ff.customer_data, customer_data);
-      // res.render('checkouts/new_checkout/'+transaction.id, { customer_data })
       res.redirect(`checkouts/new_checkout/${transaction.id}`);
-      // res.render('checkouts/show', { transaction, result, subscription })
       let newData = {
         customer_name: ff.customer_data.customer_name,
         customer_phone: ff.customer_data.customer_phone,
@@ -324,39 +337,11 @@ router.post('/checkouts', (req, res) => {
         service: ff.customer_data.service,
         status: 'Successfull'
       }
-      // res.redirect(`update_invoice/${invoice_id}`)
-      // http.put('http://localhost:3000/update_invoice/'+invoice_id, newData, (resp) => {
-      //   console.log('res:',resp);
-        
-
-      // }).on("error", (err) => {
-      //   console.log("Error: " + err.message);
-      // });
-      // console.log('result................: ', result)
-      // return new Promise((resolve, reject) => {
-      //   if (success || transaction) {
-      //     // res.redirect(`checkouts/${transaction.id}`);
-      //     // res.redirect('/checkouts/new');
-      //     console.log('invoice id: ', invoice_id);
-          
-      //     resolve();
-      //   }
-
-
-      //   reject(result);
-      // });
-          
-          // res.redirect('http://localhost:4200/view-invoice');
     })
     .catch(({ errors }) => {
-      console.log('error',errors);
-      
-      // const deepErrors = errors.deepErrors();
-
-      // debug('errors from transaction.sale %O', deepErrors);
-
-      // req.flash('error', { msg: formatErrors(deepErrors) });
-      // res.redirect('checkouts/new');
+      console.log('error in checkouts',errors);
+      req.flash('error', { msg: 'Transaction failed!!' });
+      res.redirect('checkouts/new');
     });
 
 });
@@ -462,8 +447,8 @@ router.get('/get_invoice_list',(req,res) => {
 });
 
 //GET HTTP method to /bucketlist
-router.post('/get_user_by_mail',(req,res) => {
-  userlist.findUserByEmail(req.body, (err, result)=> {
+router.post('/auth_login',(req,res) => {
+  UserList.auth_login(req.body, (err, result)=> {
     console.log('..............', result);
     
       if(err) {
@@ -481,6 +466,18 @@ router.post('/get_user_by_mail',(req,res) => {
           res.write(JSON.stringify({success: true, message: 'Successfully login!', token: token},null,2));
           res.end();
       }
+  });
+});
+
+router.get('/get_invoice_by_transaction_id/:id',(req,res) => {
+  invoicelist.findListByTransactionId(req.params.id, (err, lists)=> {
+      if(err) {
+          res.json({success:false, message: `Failed to load all lists. Error: ${err}`});
+      }
+      else {
+          res.write(JSON.stringify({success: true, lists:lists},null,2));
+          res.end();
+  }
   });
 });
 

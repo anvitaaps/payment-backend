@@ -23,7 +23,7 @@ const InvoiceListSchema = mongoose.Schema({
     transaction_date: Date
 });
 
-const InvoiceList = module.exports = mongoose.model('InvoiceList', InvoiceListSchema );
+const InvoiceList = module.exports = mongoose.model('InvoiceList', InvoiceListSchema, 'InvoiceList' );
 
 //InvoiceList.find() returns all the lists
 module.exports.getAllLists = (callback) => {

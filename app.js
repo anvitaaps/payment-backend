@@ -12,7 +12,7 @@ let user_data = {
   user_type: 'admin',
   user_password: 'admin@123'
 }
-// console.log('checckkkkkkkkkkkkkkkkkkkkkk', user.check_user_exits(user_data.user_email));
+// console.log('checckkkkkkkkkkkkkkkkkkkkkk', user.check_user_exits({user_email: user_data.user_email, user_password: user_data.user_password}));
 
 // if (!user.check_user_exits(user_data.user_email)) {
   user.add_admin(user_data);
@@ -28,7 +28,7 @@ const cors = require('cors');
 // const config = require('./config/database');
 // mongoose.connect(config.database);
 
-      mongoose.connect(config.database);
+      mongoose.connect(config.database, { useNewUrlParser: true ,useUnifiedTopology: true, useCreateIndex: true});
       var db = mongoose.connection;
       db.on('error', console.error.bind(console, 'connection error:'));
       db.once('open', function callback() {
@@ -69,7 +69,7 @@ app.use(
     resave: true
   })
 );
-app.use(express.static(staticRoot));
+app.use(express.static('public'));
 app.use(flash());
 
 app.use('/', router);

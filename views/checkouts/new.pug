@@ -3,8 +3,9 @@ extends ../layout
 block content
   .wrapper: .checkout.container: .content
     header
-      h1 Hi, #[br] Let's test a transaction
-      p Make a test payment with Braintree using PayPal or a card
+      h1 Hi,#{name} #[br] 
+      p You are paying towards Invoice ID #{invoice_id} and service #{service_name}.
+      p Use Card or PayPal account for the payment
 
     form#payment-form(action="/checkouts", method="post")
       section
@@ -19,7 +20,7 @@ block content
       input#nonce(hidden name="payment_method_nonce")
       input#nonce(hidden name="invoice_id" value=invoice_id)
       button#test.button(type="submit")
-        span Test Transaction
+        span Make Payment
       
 
 
