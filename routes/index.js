@@ -96,82 +96,55 @@ router.get('/checkouts/new_checkout/:id', (req, res) => {
         else {
           if ((lists[0] && lists[0].status == 'Pending') || (customer_data && customer_data.status === 'Pending')) {
             console.log('updatinggggggggggggggggg', req.params.id);
-            
-            let newData = {
-              invoice_id: invoice_id,
-              customer_name: customer_data.customer_name,
-              customer_phone: customer_data.customer_phone,
-              customer_email: customer_data.customer_email,
-              customer_address: customer_data.customer_address,
-              invoice_date: customer_data.invoice_date,
-              amount: customer_data.amount,
-              service: customer_data.service,
-              status: 'Successfull',
-              transaction_id: req.params.id
-            }
-             //Call the model method updateListById
-             invoicelist.updateListById(invoice_id, newData, (err,list) => {
-              if(err) {
-                console.log('errorrrr: ', err);
-                
-                  // res.json({success:false, message: `Failed to update the list. Error: ${err}`});
-              }
-              else if(list) {
-                console.log('updated: list');
-              }
-              else {
-                console.log('ifk');
-                
-              }
-                  // res.json({success:false});
-            })
+            let subscription = this.subscription;
+            let transc_status;
+            gateway.transaction.find(req.params.id).then(transaction => {
+              // result = createResultObject(transaction);
+              result = createResultObject(transaction);
+                transaction = transaction;
+              console.log('front urlllllllllllllllllll ben: ', frontend_url+req.params.id);
+              if (TRANSACTION_SUCCESS_STATUSES.indexOf(transaction.status) !== -1)
+                  transc_status = 'Successfull'
+              else
+                  transc_status = 'Failed'
+                  let newData = {
+                    invoice_id: invoice_id,
+                    customer_name: customer_data.customer_name,
+                    customer_phone: customer_data.customer_phone,
+                    customer_email: customer_data.customer_email,
+                    customer_address: customer_data.customer_address,
+                    invoice_date: customer_data.invoice_date,
+                    amount: customer_data.amount,
+                    service: customer_data.service,
+                    status: transc_status,
+                    transaction_id: req.params.id
+                  }
+                  console.log('updating data to: ', newData);
+                  
+                   //Call the model method updateListById
+                   invoicelist.updateListById(invoice_id, newData, (err,list) => {
+                    if(err) {
+                      console.log('errorrrr: ', err);
+                      
+                        // res.json({success:false, message: `Failed to update the list. Error: ${err}`});
+                    }
+                    else if(list) {
+                      console.log('updated: list');
+                    }
+                    else {
+                      console.log('ifk');
+                      
+                    }
+                        // res.json({success:false});
+                  })
+                // opens the url in the default browser 
+                opn(frontend_url+req.params.id);
+                res.render('checkouts/show', { transaction, result, subscription });
+                // res.send({status: true, message: 'Transaction data fetched successfully', data: transaction})
+                // console.log('result.............................................', transaction);
+                // res.render('checkouts/new_checkout', { transaction, subscription , customer_data })
+            });
           }
-          let subscription = this.subscription;
-          let transc_status;
-          gateway.transaction.find(req.params.id).then(transaction => {
-            // result = createResultObject(transaction);
-            result = createResultObject(transaction);
-              transaction = transaction;
-            console.log('front urlllllllllllllllllll ben: ', frontend_url+req.params.id);
-            if (TRANSACTION_SUCCESS_STATUSES.indexOf(transaction.status) !== -1)
-                transc_status = 'Successfull'
-            else
-                transc_status = 'Failed'
-                let newData = {
-                  invoice_id: invoice_id,
-                  customer_name: customer_data.customer_name,
-                  customer_phone: customer_data.customer_phone,
-                  customer_email: customer_data.customer_email,
-                  customer_address: customer_data.customer_address,
-                  invoice_date: customer_data.invoice_date,
-                  amount: customer_data.amount,
-                  service: customer_data.service,
-                  status: transc_status,
-                  transaction_id: req.params.id
-                }
-                 //Call the model method updateListById
-                 invoicelist.updateListById(invoice_id, newData, (err,list) => {
-                  if(err) {
-                    console.log('errorrrr: ', err);
-                    
-                      // res.json({success:false, message: `Failed to update the list. Error: ${err}`});
-                  }
-                  else if(list) {
-                    console.log('updated: list');
-                  }
-                  else {
-                    console.log('ifk');
-                    
-                  }
-                      // res.json({success:false});
-                })
-              // opens the url in the default browser 
-              opn(frontend_url+req.params.id);
-              res.render('checkouts/show', { transaction, result, subscription });
-              // res.send({status: true, message: 'Transaction data fetched successfully', data: transaction})
-              // console.log('result.............................................', transaction);
-              // res.render('checkouts/new_checkout', { transaction, subscription , customer_data })
-          });
         }
       });
     }
