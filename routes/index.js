@@ -16,7 +16,8 @@ var transaction;
 var customer_data;
 var invoice_id;
 var opn = require('opn');
-var frontend_url = "http://localhost:4200/view-receipt?transaction_id="
+// http://localhost:4200/#/view/view-receipt?transaction_id=k2632r70
+var frontend_url = "http://localhost:4200/#/view/view-receipt?transaction_id="
 
 const secretKey = require('secret-key');
 var jwt = require('jsonwebtoken');
@@ -64,7 +65,7 @@ function createResultObject({ status }) {
     result = {
       header: 'Transaction Failed',
       icon: 'fail',
-      message: `Your test transaction has a status of ${status}. Please and try again.`
+      message: `Your test transaction has a status of ${status}. Please try again.`
     };
   }
 
@@ -130,7 +131,7 @@ router.get('/checkouts/new_checkout/:id', (req, res) => {
             // result = createResultObject(transaction);
             result = createResultObject(transaction);
               transaction = transaction;
-            console.log('front urlllllllllllllllllll ben: ', frontend_url);
+            console.log('front urlllllllllllllllllll ben: ', frontend_url+req.params.id);
               
               // opens the url in the default browser 
               opn(frontend_url+req.params.id);
@@ -215,46 +216,46 @@ router.get('/checkouts/new', (req, res) => {
         res.json({success:false, message: `Failed to load all lists. Error: ${err}`});
     }
     else {
-        console.log(lists);
+        console.log('check lists',lists);
         data = lists[0];
-        name = data.customer_name;
-        // if (customer_data) {
+        if (lists[0]) {
+          name = data.customer_name;
+          // if (customer_data) {
           customer_data = data;
-        gateway.customer.create({
-          firstName: data.customer_name,
-          // lastName: "Smith",
-          // company: "Braintree",
-          email: data.customer_email,
-          phone: data.customer_phone,
-          // fax: "614.555.5678",
-          // website: "www.example.com",
-          payment_method_nonce: 'fake-valid-nonce',
-        }, function (err, result) {
-          console.log('customer created: '+err, result)
-          customerId = result.customer.id;
-          payment_method_token = result.customer.paymentMethods[0].token;
-        });
-        amount = data.amount;
-        invoice_id = data.invoice_id;
-        service_name = data.service;
-        gateway.clientToken.generate(
-          {
-          // customerId: customerId
-        }, function (err, response) {
-        // console.log('token: ', response)
-          clientToken = response.clientToken
-          res.render('checkouts/new', {
-            clientToken,
-            amount,
-            invoice_id,
-            name,
-            service_name,
-            messages: req.flash('error')
+          gateway.customer.create({
+            firstName: data.customer_name,
+            // lastName: "Smith",
+            // company: "Braintree",
+            email: data.customer_email,
+            phone: data.customer_phone,
+            // fax: "614.555.5678",
+            // website: "www.example.com",
+            payment_method_nonce: 'fake-valid-nonce',
+          }, function (err, result) {
+            console.log('customer created: '+err, result)
+            customerId = result.customer.id;
+            payment_method_token = result.customer.paymentMethods[0].token;
           });
-          // res.sendFile('checkouts/new.pug')
-        });
-
-        // }
+          amount = data.amount;
+          invoice_id = data.invoice_id;
+          service_name = data.service;
+          gateway.clientToken.generate(
+            {
+            // customerId: customerId
+          }, function (err, response) {
+          // console.log('token: ', response)
+            clientToken = response.clientToken
+            res.render('checkouts/new', {
+              clientToken,
+              amount,
+              invoice_id,
+              name,
+              service_name,
+              messages: req.flash('error')
+            });
+            // res.sendFile('checkouts/new.pug')
+          });
+        }
     }
   });
 console.log('data see now: ', data);

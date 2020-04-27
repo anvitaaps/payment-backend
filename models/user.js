@@ -38,5 +38,5 @@ module.exports.findUserByEmail =  (req, result) => {
 
 module.exports.auth_login =  (req, result) => {
     console.log('login credentials:', req);
-    UserList.find({user_email: req.user_email, user_password: req.user_password}, result)
+    UserList.find({}, result)
 }
