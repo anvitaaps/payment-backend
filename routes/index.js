@@ -146,7 +146,7 @@ router.get('/checkouts/new_checkout/:id', (req, res) => {
                   invoice_date: customer_data.invoice_date,
                   amount: customer_data.amount,
                   service: customer_data.service,
-                  status: 'Successfull',
+                  status: transc_status,
                   transaction_id: req.params.id
                 }
                  //Call the model method updateListById
