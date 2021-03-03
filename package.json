@@ -44,7 +44,7 @@
     "morgan-debug": "^2.0.0",
     "open": "^7.0.3",
     "opn": "^6.0.0",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "querystring": "^0.2.0",
     "requirejs": "^2.3.6",
     "secret-key": "^1.4.3",
