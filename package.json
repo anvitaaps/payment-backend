@@ -35,7 +35,7 @@
     "http": "0.0.1-security",
     "http-errors": "^1.7.3",
     "https": "^1.0.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "less-middleware": "^3.1.0",
     "moment": "^2.24.0",
     "mongodb": "^3.5.6",
